@@ -24,7 +24,6 @@ function uploadSegment(segment){
     document.getElementById(`vid-recorder`).append(recordedMedia);
 }
 
-
 function startRecording(thisButton, otherButton) {  
     // Ask for access
     userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
