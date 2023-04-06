@@ -1,16 +1,33 @@
 const webCamContainer = document.getElementById('web-cam-container');
   
-// Store the recorded media data
-let chunks = [];
-  
-const videoMediaConstraints = {
+  const videoMediaConstraints = {
     audio: true,
     video: true
 };
 
+const primaryButtonStyle = "btn btn-primary";
+const secondaryButtonStyle = "btn btn-secondary";
+const blobSegmentTime = 3000;
+
+let chunks = [];
+
+function uploadSegment(segment){
+    var arr = [] 
+    arr.push(segment.data)
+    var blob = new Blob(arr, { type: "video/mp4" });
+    var recordedMedia = document.createElement("video");
+    recordedMedia.controls = true;
+
+    var recordedMediaURL = URL.createObjectURL(blob);
+    recordedMedia.src = recordedMediaURL;
+    console.log(chunks, recordedMedia, blob);
+    document.getElementById(`vid-recorder`).append(recordedMedia);
+}
+
+
 function startRecording(thisButton, otherButton) {  
     // Ask for access
-    var userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
+    userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
 
     // If a device for video and audio input is not found, you'll see error "Requested device not found"
     userMedia.then((mediaStream) => {
@@ -22,14 +39,37 @@ function startRecording(thisButton, otherButton) {
         //Make the mediaRecorder global
         window.mediaRecorder = mediaRecorder;
   
-        mediaRecorder.start();
+        mediaRecorder.start(blobSegmentTime);
   
         // Whenever (here when the recorder stops recording) data is available
         // the MediaRecorder emits a "dataavailable" event with the recorded media data.
         mediaRecorder.ondataavailable = (e) => {
             // Push the recorded media data to the chunks array
-            chunks.push(e.data);
+            var currentChunk = e.data;
+            
+            var segment = {
+                "data": currentChunk,
+                "sequenceNumber": chunks.size,
+                "isDelivered": false
+            }
+            
+            chunks.push(segment);
+
+            uploadSegment(segment);
         };
+
+        //mediaRecorder.requestData = (e) => {
+            
+        //     const chunk = e.data;
+        //     const blob = new Blob(chunk, { type: "video/mp4" });
+        //     const recordedMedia = document.createElement("video");
+        //     recordedMedia.controls = true;
+
+        //     const recordedMediaURL = URL.createObjectURL(blob);
+        //     recordedMedia.src = recordedMediaURL;
+
+        //     document.getElementById(`vid-recorder`).append(recordedMedia);
+        // }
   
         // When the MediaRecorder stops recording, it emits "stop" event
         mediaRecorder.onstop = () => {
@@ -39,7 +79,7 @@ function startRecording(thisButton, otherButton) {
             The Blob constructor takes the chunk of media data as the first parameter and constructs 
             a Blob of the type given as the second parameter*/
             const blob = new Blob(
-                chunks, {
+                chunks.map((segment) => segment.data), {
                     type: "video/mp4" 
                 });
             chunks = [];
@@ -58,27 +98,7 @@ function startRecording(thisButton, otherButton) {
             // source of the video or audio element
             recordedMedia.src = recordedMediaURL;
   
-            // Create a download button that lets the 
-            // user download the recorded media
-            const downloadButton = document.createElement("a");
-  
-            // Set the download attribute to true so that
-            // when the user clicks the link the recorded
-            // media is automatically gets downloaded.
-            downloadButton.download = "Recorded-Media";
-  
-            downloadButton.href = recordedMediaURL;
-            downloadButton.innerText = "Download it!";
-  
-            downloadButton.onclick = () => {
-  
-                /* After download revoke the created URL URL.revokeObjectURL() method to 
-                avoid possible memory leak. Though, browser automatically revokes the 
-                created URL when the document is unloaded, still it is good to revoke the created URL */
-                URL.revokeObjectURL(recordedMedia);
-            };
-  
-            document.getElementById(`vid-recorder`).append(recordedMedia, downloadButton);
+            document.getElementById(`vid-recorder`).append(recordedMedia);
         };
   
         // Remember to use the srcObject attribute since the src attribute doesn't support media stream as a value
@@ -87,7 +107,9 @@ function startRecording(thisButton, otherButton) {
         document.getElementById(`vid-record-status`).innerText = "Recording";
   
         thisButton.disabled = true;
+        thisButton.className = secondaryButtonStyle;
         otherButton.disabled = false;
+        otherButton.className = primaryButtonStyle;
     });
 }
   
@@ -103,7 +125,9 @@ function stopRecording(thisButton, otherButton) {
   
     document.getElementById(`vid-record-status`).innerText = "Recording done!";
     thisButton.disabled = true;
+    thisButton.className = secondaryButtonStyle;
     otherButton.disabled = false;
+    otherButton.className = primaryButtonStyle;
 }
 
 // function startRecording(thisButton, otherButton) {
