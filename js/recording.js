@@ -60,7 +60,7 @@ function startRecording(thisButton, otherButton) {
     userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
 
     // Create video object on backend and return id
-    var videoId = getVideoId();// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    var videoId = getVideoId();
 
     // If a device for video and audio input is not found, you'll see error "Requested device not found"
     userMedia.then((mediaStream) => {
@@ -89,7 +89,7 @@ function startRecording(thisButton, otherButton) {
             
             chunks.push(segment);
 
-            displayOnScreen(segment);
+            // displayOnScreen(segment);
             uploadSegment(segment);
         };
 
