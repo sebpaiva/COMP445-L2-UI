@@ -26,7 +26,7 @@ function displayOnScreen(segment){
 }
 
 async function uploadSegment(segment){
-    const response = await fetch("https://reqbin.com/echo/post/json", { // we can await the fetch
+    const response = await fetch("https://.../uploadSegment", { // we can await the fetch
         method: 'POST',
         headers: {
         'Accept': 'application/json',
@@ -40,12 +40,27 @@ async function uploadSegment(segment){
     });
 }
 
+async function getVideoId(){
+    const response = await fetch("https://.../createVideo", { // we can await the fetch
+        method: 'POST',
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body: {},
+    });
+
+    response.json().then(data => {
+        console.log("Call response: ", JSON.stringify(data));
+    });
+}
+
 function startRecording(thisButton, otherButton) {  
     // Ask for access
     userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
 
     // Create video object on backend and return id
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    var videoId = getVideoId();// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
     // If a device for video and audio input is not found, you'll see error "Requested device not found"
     userMedia.then((mediaStream) => {
@@ -66,6 +81,7 @@ function startRecording(thisButton, otherButton) {
             var currentChunk = e.data;
             
             var segment = {
+                "videoId": videoId,
                 "data": currentChunk,
                 "sequenceNumber": chunks.size,
                 "isDelivered": false
