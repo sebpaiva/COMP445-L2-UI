@@ -1,6 +1,6 @@
 const webCamContainer = document.getElementById('web-cam-container');
   
-  const videoMediaConstraints = {
+const videoMediaConstraints = {
     audio: true,
     video: true
 };
@@ -11,7 +11,7 @@ const blobSegmentTime = 3000;
 
 let chunks = [];
 
-function uploadSegment(segment){
+function displayOnScreen(segment){
     var arr = [] 
     arr.push(segment.data)
     var blob = new Blob(arr, { type: "video/mp4" });
@@ -21,12 +21,31 @@ function uploadSegment(segment){
     var recordedMediaURL = URL.createObjectURL(blob);
     recordedMedia.src = recordedMediaURL;
     console.log(chunks, recordedMedia, blob);
+
     document.getElementById(`vid-recorder`).append(recordedMedia);
+}
+
+async function uploadSegment(segment){
+    const response = await fetch("https://reqbin.com/echo/post/json", { // we can await the fetch
+        method: 'POST',
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body: segment,
+    });
+
+    response.json().then(data => {
+        console.log("Call response: ", JSON.stringify(data));
+    });
 }
 
 function startRecording(thisButton, otherButton) {  
     // Ask for access
     userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
+
+    // Create video object on backend and return id
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
     // If a device for video and audio input is not found, you'll see error "Requested device not found"
     userMedia.then((mediaStream) => {
@@ -54,6 +73,7 @@ function startRecording(thisButton, otherButton) {
             
             chunks.push(segment);
 
+            displayOnScreen(segment);
             uploadSegment(segment);
         };
 
@@ -128,111 +148,3 @@ function stopRecording(thisButton, otherButton) {
     otherButton.disabled = false;
     otherButton.className = primaryButtonStyle;
 }
-
-// function startRecording(thisButton, otherButton) {
-  
-//     navigator.mediaDevices.getUserMedia(
-//         selectedMedia === "vid" ?
-//         videoMediaConstraints :
-//         audioMediaConstraints)
-  
-//     .then(mediaStream => {
-  
-//         /* New code */
-//         // Create a new MediaRecorder 
-//         // instance that records the 
-//         // received mediaStream
-//         const mediaRecorder = 
-//             new MediaRecorder(mediaStream);
-  
-//         // Make the mediaStream global
-//         window.mediaStream = mediaStream;
-  
-//         // Make the mediaRecorder global
-//         // New line of code
-//         window.mediaRecorder = mediaRecorder;
-  
-//         if (selectedMedia === 'vid') {
-  
-//             // Remember to use the srcObject 
-//             // attribute since the src attribute 
-//             // doesn't support media stream as a value
-//             webCamContainer.srcObject = mediaStream;
-//         }
-  
-//         document.getElementById(
-//             `${selectedMedia}-record-status`)
-//             .innerText = "Recording";
-  
-//         thisButton.disabled = true;
-//         otherButton.disabled = false;
-//     });
-// }
-  
-// function stopRecording(thisButton, otherButton) {
-  
-//     // Stop all the tracks in the received 
-//     // media stream i.e. close the camera
-//     // and microphone
-//     window.mediaStream.getTracks().forEach(track => {
-//         track.stop();
-//     });
-  
-//     document.getElementById(
-//         `${selectedMedia}-record-status`)
-//         .innerText = "Recording done!";
-          
-//     thisButton.disabled = true;
-//     otherButton.disabled = false;
-// }
-
-
-// function start_video_recording() {
-//     // stores the recorded media
-//     let chunksArr= [];
-//     const startBtn=document.getElementById("video_st");
-//     const endBtn=document.getElementById("video_en");
-    
-//        // permission to access camera and microphone
-//        navigator.mediaDevices.getUserMedia({audio: true, video: true})
-//        .then((mediaStreamObj) => {
-       
-//           // Create a new MediaRecorder instance
-//           const medRec =new MediaRecorder(mediaStreamObj);
-//           window.mediaStream = mediaStreamObj;
-//           window.mediaRecorder = medRec;
-//           medRec.start();
-          
-//           //when recorded data is available then push into chunkArr array
-//           medRec.ondataavailable = (e) => {chunksArr.push(e.data);};
-          
-//           //stop the video recording
-//           medRec.onstop = () => {
-//              const blobFile = new Blob(chunksArr, { type:"video/mp4" });
-//           chunksArr= [];
-          
-//           // create video element and store the media which is recorded
-//           const recMediaFile = document.createElement("video");
-//           recMediaFile.controls = true;
-//           const RecUrl = URL.createObjectURL(blobFile);
-          
-//           //keep the recorded url as source
-//           recMediaFile.src = RecUrl;
-//           document.getElementById(`vid-recorder`).append(recMediaFile);
-//        };
-//        document.getElementById("vidBox").srcObject = mediaStreamObj;
-//        //disable the start button and enable the stop button
-//        startBtn.disabled = true;
-//        endBtn.disabled = false;
-//     });
-//  }
-
-//  function stop_Recording(end, start) {
-//     window.mediaRecorder.stop();
-    
-//     // stop all tracks
-//     window.mediaStream.getTracks() .forEach((track) => {track.stop();});
-//     //disable the stop button and enable the start button
-//     end.disabled = true;
-//     start.disabled = false;
-//  }
