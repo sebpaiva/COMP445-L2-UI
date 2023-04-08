@@ -13,11 +13,10 @@ async function getVideo(id){
     var url = backendUrl + "/video-retrieve.php/" + id
     const response = await fetch(url, { 
         method: 'GET',
-        // mode: 'cors',
+        mode: 'cors',
         headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        // 'Access-Control-Allow-Origin': 'http://localhost',
         'Access-Control-Allow-Credentials': 'true'
         }
     });
