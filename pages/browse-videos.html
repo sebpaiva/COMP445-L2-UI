@@ -119,12 +119,15 @@
                                         src="../img/video.jpg" alt="...">
                                 </div>
                                 <div class="card-body">
-                                    <p>4. Retrieve the list of the uploaded videos available from the web server.</p>
-                                    <p>5. Videos should be playable live onto the client device during a session as well
-                                        as stored on the server
-                                        for on-demand playback.</p>
-                                    <a href="./browse-videos.html" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                            class="fa-solid fa-play fa-sm text-white-50"></i> Fetch Videos</a>
+                                    
+                                    <label for="requested-video-id">Retrieve video id:</label>
+                                    <input type="number" id="requested-video-id" name="requested-video-id"
+                                        min="1" value="1">
+                                        
+                                    <button type="button" class="btn btn-primary" id="get-video-id"  
+                                        onclick="getVideoById(document.getElementById('requested-video-id'))">
+                                            Get Video
+                                    </button>
                                 </div>
                             </div>
 
@@ -132,6 +135,22 @@
                     </div>
 
                 </div>
+                <!-- Test, from recording -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800"></h1>
+                    </div>
+
+                    <div class="bg-white border rounded-5">
+                        <div class="p-4 text-center w-100" id="vid-recorder">
+                            
+                            <p id="vid-record-status">List of videos</p>
+                        </div>
+                        
+                        
+                    </div>
             </div>
             <!-- End of Main Content -->
 
@@ -164,6 +183,11 @@
 
     <!-- Custom scripts for all pages-->
     <script src="../js/sb-admin-2.min.js"></script>
+
+    
+    <!-- Custom for this page -->
+    <script src="../js/browse-videos.js"></script>
+
 
 </body>
 

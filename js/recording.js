@@ -89,7 +89,7 @@ function startRecording(thisButton, otherButton) {
             
             chunks.push(segment);
 
-            // displayOnScreen(segment);
+            displayOnScreen(segment);
             uploadSegment(segment);
         };
 
