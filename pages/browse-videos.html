@@ -59,14 +59,19 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                ACCESS
+                PLAYBACK
             </div>
 
-            <!-- Nav Item - Charts -->
+            <li class="nav-item">
+                <a class="nav-link" href="./search-video.html">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Video Search</span></a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="./browse-videos.html">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <span>Browse Videos</span></a>
+                    <span>Browse All Videos</span></a>
             </li>
 
             <!-- Divider -->
@@ -102,7 +107,7 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Videos</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Playback</h1>
                     </div>
 
                     <!-- Content Row -->
@@ -114,46 +119,23 @@
                                 <div class="card-header py-3">
                                     <h6 class="m-0 font-weight-bold text-primary">Play</h6>
                                 </div>
-                                <div class="text-center">
-                                    <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                                        src="../img/video.jpg" alt="...">
-                                </div>
                                 <div class="card-body">
                                     
-                                    <label for="requested-video-id">Retrieve video id:</label>
-                                    <input type="number" id="requested-video-id" name="requested-video-id"
-                                        min="1" value="1">
-                                        
+                                    <label for="get-video-id">Retrieve all videos:</label>
+                                    
                                     <button type="button" class="btn btn-primary" id="get-video-id"  
-                                        onclick="getVideoById(document.getElementById('requested-video-id'))">
-                                            Get Video
+                                        onclick="getAllVideos()">
+                                            Get Videos
                                     </button>
-
-                                    <div id="one-video-display">
+                                    
+                                    <div class="text-center" id="multiple-video-display">
                                     </div>
                                 </div>
                             </div>
 
                         </div>
                     </div>
-
                 </div>
-                <!-- Test, from recording -->
-                <div class="container-fluid">
-
-                    <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800"></h1>
-                    </div>
-
-                    <div class="bg-white border rounded-5">
-                        <div class="p-4 text-center w-100" id="vid-recorder">
-                            
-                            <p id="vid-record-status">List of videos</p>
-                        </div>
-                        
-                        
-                    </div>
             </div>
             <!-- End of Main Content -->
 

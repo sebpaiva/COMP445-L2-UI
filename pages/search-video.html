@@ -15,45 +15,13 @@
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-
+    
     <!-- fa icons -->
     <script src="https://kit.fontawesome.com/00b9c69dbc.js" crossorigin="anonymous"></script>
 
     <!-- Custom styles for this template-->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
-    <style>
-        body {
-            text-align: center;
-            font-size: 1.2em;
-        }
 
-        #video_st,
-        #video_en,
-        #aud_st,
-        #aud_en {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        #vidBox {
-            background-color: grey;
-        }
-
-        video {
-            background-color: gray;
-            display: block;
-            margin: 6px auto;
-            width: 420px;
-            height: 240px;
-        }
-
-        audio {
-            display: block;
-            margin: 6px auto;
-        }
-    </style>
 </head>
 
 <body id="page-top">
@@ -139,29 +107,35 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Record Webcam</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Playback</h1>
                     </div>
 
-                    <div class="bg-white border rounded-5">
-                        <div class="p-4 text-center w-100" id="vid-recorder">
-                            <video autoplay id="web-cam-container" style="background-color: gray;">
-                                Your browser doesn't support the video tag
-                            </video>
-                            <p id="vid-record-status"></p>
-                        </div>
-                        
-                        <div class="p-4 text-center border-top">
-                            <!-- This button will start the video recording -->
-                            <button type="button" class="btn btn-primary" id="start-vid-recording" 
-                                onclick="startRecording(this, document.getElementById('stop-vid-recording'))">
-                                    Start Recording
-                            </button>
+                    <!-- Content Row -->
+                    <div class="row">
 
-                            <!-- This button will stop the video recording -->
-                            <button type="button" class="btn btn-secondary" id="stop-vid-recording" disabled 
-                                onclick="stopRecording(this, document.getElementById('start-vid-recording'))">
-                                    Stop Recording
-                            </button>
+                        <div class="col-lg mb-4">
+                            <!-- Approach -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Video Search</h6>
+                                </div>
+                                <div class="card-body">
+                                    
+                                    <label for="requested-video-id">Retrieve video id:</label>
+                                    <input type="number" id="requested-video-id" name="requested-video-id"
+                                        min="1" value="1">
+                                        
+                                    <button type="button" class="btn btn-primary" id="get-video-id"  
+                                        onclick="getVideoById(document.getElementById('requested-video-id'))">
+                                            Get Video
+                                    </button>
+                                    
+                                    <div class="text-center" id="one-video-display">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -198,8 +172,10 @@
     <!-- Custom scripts for all pages-->
     <script src="../js/sb-admin-2.min.js"></script>
 
+    
     <!-- Custom for this page -->
-    <script src="../js/recording.js"></script>
+    <script src="../js/browse-videos.js"></script>
+
 
 </body>
 
