@@ -2,11 +2,7 @@
 const backendUrl = "http://localhost/comp445lab2.com/endpoints";
 
 function getVideoById(videoIdInput) {  
-    
-    console.log(getVideo(videoIdInput.value));
-
-
-
+    getVideo(videoIdInput.value);   
 }
 
 async function getVideo(id){
@@ -19,10 +15,21 @@ async function getVideo(id){
         'Content-Type': 'application/json',
         'Access-Control-Allow-Credentials': 'true'
         }
+    })
+    .then(function(response) {
+        return response.json();
+    }).then(function(response) {
+        // Create new video tag
+        var video = document.createElement("video");
+        video.controls = true;
+        
+        // Put the received base64 video as the src
+        var videoContents = response.data;
+        video.src = "data:video/mp4;base64," + videoContents;
+        
+        // Display
+        var getVideoByIdDisplay = document.getElementById(`one-video-display`);
+        getVideoByIdDisplay.innerHTML = '';
+        getVideoByIdDisplay.append(video);
     });
-
-    console.log(response);
-    // response.json().then(data => {
-    //     return data;
-    // });
 }
