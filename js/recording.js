@@ -1,9 +1,11 @@
-const webCamContainer = document.getElementById('web-cam-container');
+/*
+___________________________________________________________________________
 
-const videoMediaConstraints = {
-    audio: true,
-    video: true
-};
+                        Variables and Settings
+
+___________________________________________________________________________
+*/
+const webCamContainer = document.getElementById('web-cam-container');
 
 const primaryButtonStyle = "btn btn-primary";
 const secondaryButtonStyle = "btn btn-secondary";
@@ -12,22 +14,34 @@ const backendUrl = "http://localhost/comp445lab2.com/endpoints";
 
 let chunks = [];
 
-function displayOnScreen(segment) {
-    var arr = []
-    arr.push(segment.data)
-    var blob = new Blob(arr, { type: "video/mp4" });
-    var recordedMedia = document.createElement("video");
-    recordedMedia.controls = true;
 
-    var recordedMediaURL = URL.createObjectURL(blob);
-    recordedMedia.src = recordedMediaURL;
-    console.log(chunks, recordedMedia, blob);
+const videoMediaConstraints = {
+    audio: true,
+    video: {
+        frameRate: 30,
+        width: 1280,
+        height: 720
+    }
+};
 
-    document.getElementById(`vid-recorder`).append(recordedMedia);
-}
+var recordingOptions = {
+    // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_(h.264)
+    // Advanced Video Coding (AVC), also referred to as.0 H.264
+    // Alternative: 'video/webm;codecs=h264'
+    mimeType: 'video/x-matroska;codecs=avc1',
+    audioBitsPerSecond: 128000,
+    videoBitsPerSecond: 5000000
+};
 
+/*
+___________________________________________________________________________
+
+                        Backend Calls
+
+___________________________________________________________________________
+*/
 async function createVideoId() {
-    return fetch(backendUrl + "/video-upload.php/getVideoId", {
+    return await fetch(backendUrl + "/video-upload.php/getVideoId", {
         method: 'GET',
         mode: 'cors',
         headers: {
@@ -38,8 +52,9 @@ async function createVideoId() {
     }).then(function (response) {
         return response.json();
     }).then(function (response) {
+        console.log(response.id)
         if (response.error || !response.id) {
-            console.log(error)
+            console.log(error);
             return;
         }
         return response.id;
@@ -47,10 +62,10 @@ async function createVideoId() {
 }
 
 async function uploadSegment(segment) {
-    console.log(segment);
-    fetch(backendUrl + "/video-upload.php/uploadSegment", {
+    await fetch(backendUrl + "/video-upload.php/uploadSegment", {
         method: 'POST',
         mode: 'cors',
+        credentials: 'include',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
@@ -62,34 +77,48 @@ async function uploadSegment(segment) {
     }).then(function (response) {
         if (response.error) {
             console.log(response);
-            // displayError(response);
             return;
         }
 
-        // might not work if this is not a reference
+        // might need to be adjusted if this is not a reference to the segment in the `chunks` array
         segment.isDelivered = true;
-        console.log(reference);
     });
 }
 
-function uploadPendingSegments() {
-    chunks.forEach((segment) => {
-        if (!segment.isDelivered) {
-            uploadSegment(segment);
+function finishUpload() {
+    fetch(backendUrl + "/video-upload.php/uploadSegment", {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Credentials': 'true'
         }
+    }).then(function (response) {
+        return response.json();
+    }).then(function (response) {
+        console.log(response);
     });
 }
 
+/*
+___________________________________________________________________________
+
+                        Button onclicks
+
+___________________________________________________________________________
+*/
 async function startRecording(thisButton, otherButton) {
     // Ask for access
+    // If devices for video and audio input are not available, you'll see error "Requested device not found"
     userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
 
     // Create video object on backend and return id
     var videoId = await createVideoId();
 
-    // If a device for video and audio input is not found, you'll see error "Requested device not found"
     userMedia.then((mediaStream) => {
-        const mediaRecorder = new MediaRecorder(mediaStream);
+        const mediaRecorder = new MediaRecorder(mediaStream, recordingOptions);
 
         //Make vars global
         window.mediaStream = mediaStream;
@@ -97,45 +126,31 @@ async function startRecording(thisButton, otherButton) {
 
         mediaRecorder.start(blobSegmentTime);
 
-        // Whenever (here when the recorder stops recording) data is available
-        // the MediaRecorder emits a "dataavailable" event with the recorded media data.
         mediaRecorder.ondataavailable = (e) => {
             var currentChunk = e.data;
 
             var segment = {
                 "videoId": videoId,
-                "data": currentChunk,
                 "sequenceNumber": chunks.length,
-                "isDelivered": false
+                "isDelivered": false,
+                "data": currentChunk
             }
 
+            console.log(segment);
+
             chunks.push(segment);
-
-            // displayOnScreen(segment);
-
-            // SHUOLD BE THE OTHER ONE
             uploadSegment(segment);
-            // uploadPendingSegments();
+
+            // For debugging if needed:
+            // displayOnScreen(segment);
         };
 
-        mediaRecorder.onstop = () => {
-            /* A Blob is a File like object. In fact, the File interface is based on Blob. 
-            File inherits the Blob interface and expands it to support the files on the user's system. 
-            The Blob constructor takes the chunk of media data as the first parameter and constructs 
-            a Blob of the type given as the second parameter*/
-            const blob = new Blob(
-                chunks.map((segment) => segment.data), {
-                type: "video/mp4"
-            });
-            chunks = [];
+        mediaRecorder.onstop = async () => {
+            // For bonus points, we guarantee that all segments are received
+            await uploadPendingSegments();
 
-            const recordedMedia = document.createElement("video");
-            recordedMedia.controls = true;
-
-            const recordedMediaURL = URL.createObjectURL(blob);
-            recordedMedia.src = recordedMediaURL;
-
-            document.getElementById(`vid-recorder`).append(recordedMedia);
+            // Notify backend that segments uploading is done
+            finishUpload(videoId);
         };
 
         webCamContainer.srcObject = mediaStream;
@@ -157,9 +172,42 @@ function stopRecording(thisButton, otherButton) {
         track.stop();
     });
 
-    document.getElementById(`vid-record-status`).innerText = "Recording done!";
     thisButton.disabled = true;
     thisButton.className = secondaryButtonStyle;
     otherButton.disabled = false;
     otherButton.className = primaryButtonStyle;
+}
+
+/*
+___________________________________________________________________________
+
+                        Helper functions
+
+___________________________________________________________________________
+*/
+async function uploadPendingSegments() {
+    document.getElementById(`vid-record-status`).innerText = "Finishing segment uploads...";
+
+    for (var segment of chunks) {
+        while (!segment.isDelivered) {
+            console.log("Segment with sequenceNumber:", segment.sequenceNumber, "was not uploaded, attempting to reupload..");
+            await uploadSegment(segment);
+        }
+    }
+
+    document.getElementById(`vid-record-status`).innerText = "Video uploaded successfully!";
+}
+
+function displayOnScreen(segment) {
+    var arr = []
+    arr.push(segment.data)
+    var blob = new Blob(arr, { type: "video/mp4" });
+    var recordedMedia = document.createElement("video");
+    recordedMedia.controls = true;
+
+    var recordedMediaURL = URL.createObjectURL(blob);
+    recordedMedia.src = recordedMediaURL;
+    console.log(chunks, recordedMedia, blob);
+
+    document.getElementById(`vid-recorder`).append(recordedMedia);
 }
