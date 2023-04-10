@@ -23,14 +23,14 @@ async function getVideo(id) {
         return response.json();
     }).then(function (response) {
         if (response.error) {
-            displayError(response);
+            displayVideoLoadError(response);
             return;
         }
         displayVideo(response);
     });
 }
 
-function displayError(response) {
+function displayVideoLoadError(response) {
     // Create error message
     var errorMessage = document.createElement("h5");
     errorMessage.innerHTML = "Error: " + response.error;
@@ -105,6 +105,4 @@ function displayAllVideos(response) {
         getVideoByIdDisplay.append(title);
         getVideoByIdDisplay.append(video);
     });
-
-
 }

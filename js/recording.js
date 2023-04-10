@@ -26,8 +26,8 @@ function displayOnScreen(segment) {
     document.getElementById(`vid-recorder`).append(recordedMedia);
 }
 
-async function getVideoId() {
-    await fetch(backendUrl + "/video-upload.php/getVideoId ", {
+async function createVideoId() {
+    return fetch(backendUrl + "/video-upload.php/getVideoId", {
         method: 'GET',
         mode: 'cors',
         headers: {
@@ -39,7 +39,7 @@ async function getVideoId() {
         return response.json();
     }).then(function (response) {
         if (response.error || !response.id) {
-            displayError(response);
+            console.log(error)
             return;
         }
         return response.id;
@@ -47,8 +47,8 @@ async function getVideoId() {
 }
 
 async function uploadSegment(segment) {
-    //
-    await fetch(backendUrl + "/video-upload.php/uploadSegment", {
+    console.log(segment);
+    fetch(backendUrl + "/video-upload.php/uploadSegment", {
         method: 'POST',
         mode: 'cors',
         headers: {
@@ -61,10 +61,14 @@ async function uploadSegment(segment) {
         return response.json();
     }).then(function (response) {
         if (response.error) {
-            displayError(response);
+            console.log(response);
+            // displayError(response);
             return;
         }
-        displayVideo(response);
+
+        // might not work if this is not a reference
+        segment.isDelivered = true;
+        console.log(reference);
     });
 }
 
@@ -76,12 +80,12 @@ function uploadPendingSegments() {
     });
 }
 
-function startRecording(thisButton, otherButton) {
+async function startRecording(thisButton, otherButton) {
     // Ask for access
     userMedia = navigator.mediaDevices.getUserMedia(videoMediaConstraints);
 
     // Create video object on backend and return id
-    var videoId = getVideoId();
+    var videoId = await createVideoId();
 
     // If a device for video and audio input is not found, you'll see error "Requested device not found"
     userMedia.then((mediaStream) => {
@@ -101,7 +105,7 @@ function startRecording(thisButton, otherButton) {
             var segment = {
                 "videoId": videoId,
                 "data": currentChunk,
-                "sequenceNumber": chunks.size,
+                "sequenceNumber": chunks.length,
                 "isDelivered": false
             }
 
@@ -109,7 +113,9 @@ function startRecording(thisButton, otherButton) {
 
             // displayOnScreen(segment);
 
-            uploadPendingSegments();
+            // SHUOLD BE THE OTHER ONE
+            uploadSegment(segment);
+            // uploadPendingSegments();
         };
 
         mediaRecorder.onstop = () => {
