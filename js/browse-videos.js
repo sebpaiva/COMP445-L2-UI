@@ -1,29 +1,28 @@
 
 const backendUrl = "http://localhost/comp445lab2.com/endpoints";
 
-function getVideoById(videoIdInput) {  
-    getVideo(videoIdInput.value);   
+function getVideoById(videoIdInput) {
+    getVideo(videoIdInput.value);
 }
 
-function getAllVideos() {  
-    getAllVideos();   
+function getAllVideos() {
+    getAllVideos();
 }
 
-async function getVideo(id){
+async function getVideo(id) {
     var url = backendUrl + "/video-retrieve.php/" + id
-    const response = await fetch(url, { 
+    fetch(url, {
         method: 'GET',
         mode: 'cors',
         headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Credentials': 'true'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Credentials': 'true'
         }
-    })
-    .then(function(response) {
+    }).then(function (response) {
         return response.json();
-    }).then(function(response) {
-        if(response.error){
+    }).then(function (response) {
+        if (response.error) {
             displayError(response);
             return;
         }
@@ -31,7 +30,7 @@ async function getVideo(id){
     });
 }
 
-function displayError(response){
+function displayError(response) {
     // Create error message
     var errorMessage = document.createElement("h5");
     errorMessage.innerHTML = "Error: " + response.error;
@@ -44,14 +43,14 @@ function displayError(response){
     getVideoByIdDisplay.append(errorMessage);
 }
 
-function displayVideo(response){
+function displayVideo(response) {
     // Create new video tag
     var video = document.createElement("video");
     video.controls = true;
     var title = document.createElement("h3");
     title.innerHTML = response.name;
 
-    video.src = parseVideo(response.data); 
+    video.src = parseVideo(response.data);
 
     // Display
     var getVideoByIdDisplay = document.getElementById(`one-video-display`);
@@ -61,26 +60,25 @@ function displayVideo(response){
     getVideoByIdDisplay.append(video);
 }
 
-function parseVideo(videoContents){
+function parseVideo(videoContents) {
     // Put the received base64 video as the src
     return "data:video/mp4;base64," + videoContents;
 }
 
-async function getAllVideos(){
+async function getAllVideos() {
     var url = backendUrl + "/video-retrieve.php/"
-    const response = await fetch(url, { 
+    fetch(url, {
         method: 'GET',
         mode: 'cors',
         headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Credentials': 'true'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Credentials': 'true'
         }
-    })
-    .then(function(response) {
+    }).then(function (response) {
         return response.json();
-    }).then(function(response) {
-        if(response.error){
+    }).then(function (response) {
+        if (response.error) {
             displayError(response);
             return;
         }
@@ -88,8 +86,8 @@ async function getAllVideos(){
     });
 }
 
-function displayAllVideos(response){
-    var getVideoByIdDisplay = document.getElementById(`one-video-display`);
+function displayAllVideos(response) {
+    var getVideoByIdDisplay = document.getElementById(`multiple-video-display`);
     // Clear the display for each button press
     getVideoByIdDisplay.innerHTML = "";
 
@@ -100,7 +98,7 @@ function displayAllVideos(response){
         var title = document.createElement("h3");
         title.innerHTML = element.name;
 
-        video.src = parseVideo(response.data); 
+        video.src = parseVideo(element.data);
 
         // Display
         getVideoByIdDisplay.append(document.createElement("hr"));
@@ -108,5 +106,5 @@ function displayAllVideos(response){
         getVideoByIdDisplay.append(video);
     });
 
-    
+
 }
