@@ -85,8 +85,8 @@ async function uploadSegment(segment) {
     });
 }
 
-function finishUpload() {
-    fetch(backendUrl + "/video-upload.php/uploadSegment", {
+function finishUpload(videoID) {
+    fetch(backendUrl + "/video-upload.php/finishUpload/" + videoID, {
         method: 'GET',
         mode: 'cors',
         credentials: 'include',
