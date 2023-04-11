@@ -62,6 +62,7 @@ async function createVideoId() {
 }
 
 async function uploadSegment(segment) {
+    const jsonString = JSON.stringify(segment)
     await fetch(backendUrl + "/video-upload.php/uploadSegment", {
         method: 'POST',
         mode: 'cors',
@@ -71,7 +72,8 @@ async function uploadSegment(segment) {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Credentials': 'true'
         },
-        body: segment,
+        //body: segment,
+        body: jsonString,
     }).then(function (response) {
         return response.json();
     }).then(function (response) {
