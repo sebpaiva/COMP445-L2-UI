@@ -28,7 +28,8 @@ var recordingOptions = {
     // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs#avc_(h.264)
     // Advanced Video Coding (AVC), also referred to as.0 H.264
     // Alternative: 'video/webm;codecs=h264'
-    mimeType: 'video/x-matroska;codecs=avc1',
+    // video/x-matroska;codecs=avc1
+    mimeType: 'video/webm;codecs=h264',
     audioBitsPerSecond: 128000,
     videoBitsPerSecond: 5000000
 };
@@ -61,9 +62,41 @@ async function createVideoId() {
     });
 }
 
+
+// Helper Function
+const blobToBase64 = (blob) => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = function () {
+            resolve(reader.result);
+        };
+    });
+};
+
+// This function takes a segment object as input and uploads it to the backend server
 async function uploadSegment(segment) {
-    const jsonString = JSON.stringify(segment)
-    await fetch(backendUrl + "/video-upload.php/uploadSegment", {
+    // Convert the binary data of the segment to base64
+    const base64data = await blobToBase64(segment.data);
+    // Create a new object with the base64 data and other properties from the original segment object
+    const segmentObject = {
+        videoId: segment.videoId,
+        sequenceNumber: segment.sequenceNumber,
+        isDelivered: segment.isDelivered,
+        data: base64data,
+    };
+    // Convert the segment object to a JSON string
+    const jsonString = JSON.stringify(segmentObject);
+
+    // Log some information about the segment for debugging purposes
+    // console.log(segmentObject.videoId);
+    // console.log(segmentObject.sequenceNumber);
+    // console.log(segmentObject.isDelivered);
+    // console.log(segmentObject.data);
+    // console.log(jsonString);
+
+    // Send a POST request to the backend server to upload the segment
+    fetch(backendUrl + "/video-upload.php/uploadSegment", {
         method: 'POST',
         mode: 'cors',
         credentials: 'include',
@@ -72,20 +105,24 @@ async function uploadSegment(segment) {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Credentials': 'true'
         },
-        //body: segment,
+        // Set the request body to the JSON string of the segment object
         body: jsonString,
     }).then(function (response) {
+        // Convert the response to a JSON object
         return response.json();
     }).then(function (response) {
+        // Check if the response contains an error
         if (response.error) {
             console.log(response);
             return;
         }
-
-        // might need to be adjusted if this is not a reference to the segment in the `chunks` array
+        // Mark the segment as delivered if the upload was successful
+        // Note that this may need to be adjusted if the `segment` variable is not a reference to the original object
         segment.isDelivered = true;
     });
 }
+
+
 
 function finishUpload(videoID) {
     fetch(backendUrl + "/video-upload.php/finishUpload/" + videoID, {
@@ -149,10 +186,10 @@ async function startRecording(thisButton, otherButton) {
 
         mediaRecorder.onstop = async () => {
             // For bonus points, we guarantee that all segments are received
-            await uploadPendingSegments();
+            //await uploadPendingSegments();
 
             // Notify backend that segments uploading is done
-            finishUpload(videoId);
+            //finishUpload(videoId);
         };
 
         webCamContainer.srcObject = mediaStream;
