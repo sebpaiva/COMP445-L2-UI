@@ -88,13 +88,6 @@ async function uploadSegment(segment) {
     // Convert the segment object to a JSON string
     const jsonString = JSON.stringify(segmentObject);
 
-    // Log some information about the segment for debugging purposes
-    // console.log(segmentObject.videoId);
-    // console.log(segmentObject.sequenceNumber);
-    // console.log(segmentObject.isDelivered);
-    // console.log(segmentObject.data);
-    // console.log(jsonString);
-
     // Send a POST request to the backend server to upload the segment
     fetch(backendUrl + "/video-upload.php/uploadSegment", {
         method: 'POST',
