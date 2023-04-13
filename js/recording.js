@@ -189,7 +189,7 @@ async function startRecording(thisButton, otherButton) {
             //await uploadPendingSegments();
 
             // Notify backend that segments uploading is done
-            //finishUpload(videoId);
+            finishUpload(videoId);
         };
 
         webCamContainer.srcObject = mediaStream;
