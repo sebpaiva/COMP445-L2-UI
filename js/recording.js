@@ -29,7 +29,7 @@ var recordingOptions = {
     // Advanced Video Coding (AVC), also referred to as.0 H.264
     // Alternative: 'video/webm;codecs=h264'
     // video/x-matroska;codecs=avc1
-    mimeType: 'video/webm;codecs=h264',
+    mimeType: 'video/x-matroska;codecs=avc1',
     audioBitsPerSecond: 128000,
     videoBitsPerSecond: 5000000
 };
