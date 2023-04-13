@@ -119,6 +119,7 @@ async function uploadSegment(segment) {
         // Mark the segment as delivered if the upload was successful
         // Note that this may need to be adjusted if the `segment` variable is not a reference to the original object
         segment.isDelivered = true;
+        console.log(segment);
     });
 }
 
@@ -175,7 +176,7 @@ async function startRecording(thisButton, otherButton) {
                 "data": currentChunk
             }
 
-            console.log(segment);
+            // console.log(segment);
 
             chunks.push(segment);
             uploadSegment(segment);
@@ -186,7 +187,7 @@ async function startRecording(thisButton, otherButton) {
 
         mediaRecorder.onstop = async () => {
             // For bonus points, we guarantee that all segments are received
-            //await uploadPendingSegments();
+            await uploadPendingSegments();
 
             // Notify backend that segments uploading is done
             finishUpload(videoId);
@@ -231,11 +232,16 @@ async function uploadPendingSegments() {
         while (!segment.isDelivered) {
             console.log("Segment with sequenceNumber:", segment.sequenceNumber, "was not uploaded, attempting to reupload..");
             await uploadSegment(segment);
+            await sleep(1000);
         }
     }
 
     document.getElementById(`vid-record-status`).innerText = "Video uploaded successfully!";
 }
+
+let sleep = ms => {  
+    return new Promise(resolve => setTimeout(resolve, ms));  
+    };  
 
 function displayOnScreen(segment) {
     var arr = []
